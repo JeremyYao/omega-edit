@@ -30,16 +30,23 @@
     "pretest": "yarn package && yarn install-client-local",
     "test:client": "mocha --timeout 100000 --slow 50000 --require ts-node/register --require tests/fixtures.ts --exclude ./tests/specs/server.spec.ts ./tests/specs/*.spec.ts --exit",
     "test:lifecycle": "mocha --timeout 50000 --slow 35000 --require ts-node/register ./tests/specs/server.spec.ts --exit",
-    "test": "(yarn test:lifecycle && yarn test:client) || (yarn posttest && exit 1)",
+    "prepare-temp-dir": "rimraf \"temp test path\" && mkdir -p \"temp test path/specs\" && cpy \"tests/**\" \"temp test path\"",
+    "test:space-path": "cross-env NODE_OPTIONS=\"--require ts-node/register\" mocha --timeout 100000 --slow 50000 --require \"temp test path/fixtures.ts\" \"temp test path/specs/*.spec.ts\" --exit",
+    "posttest:space-path": "rimraf \"temp test path\"",
+    "test:full-space": "yarn prepare-temp-dir && yarn test:space-path && yarn posttest:space-path",
+    "test": "(yarn test:lifecycle && yarn test:client && yarn test:full-space) || (yarn posttest && exit 1)",
     "posttest": "yarn remove @omega-edit/client",
     "lint": "prettier --check package.json webpack.config.js src tests && eslint .",
     "lint:fix": "prettier --write package.json webpack.config.js src tests && eslint --fix ."
   },
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",
+    "cpy-cli": "^5.0.0",
+    "cross-env": "^7.0.3",
     "grpc-tools": "^1.12.4",
     "grpc_tools_node_protoc_ts": "^5.3.3",
     "pino-webpack-plugin": "^2.0.0",
+    "rimraf": "5",
     "ts-node": "^10.9.2"
   },
   "dependencies": {
